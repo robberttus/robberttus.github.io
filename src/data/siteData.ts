@@ -1,5 +1,17 @@
 export type PageId = 'home' | 'contact' | 'games' | 'projects';
 
+export function assetUrl(path: string): string {
+  const clean = path.replace(/^\/+/, '');
+  if (
+    typeof window !== 'undefined' &&
+    window.location.hostname.endsWith('github.io') &&
+    (window as unknown as { __ghBundleLoaded?: boolean }).__ghBundleLoaded
+  ) {
+    return `/public/${clean}`;
+  }
+  return `/${clean}`;
+}
+
 export interface ProjectItem {
   id: string;
   index: string;

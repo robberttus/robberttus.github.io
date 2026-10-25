@@ -4,6 +4,7 @@ import {
   SITE_CONTENT,
   PROJECTS,
   BANANA_GAMES_HIGHLIGHTS,
+  assetUrl,
 } from './data/siteData';
 import { GamesVisualCard, ProjectsVisualCard } from './components/VisualCanvas';
 import { ContactFormSection } from './components/ContactFormSection';
@@ -20,36 +21,47 @@ import {
   X,
 } from 'lucide-react';
 
-export default function App() {
-  const [activePage, setActivePage] = useState<PageId>(() => {
-    const hash = window.location.hash.replace('#', '').toLowerCase();
-    if (hash === 'contact' || hash === 'games' || hash === 'projects' || hash === 'home') {
-      return hash as PageId;
-    }
-    return 'home';
-  });
+function getPageFromLocation(): PageId {
+  const hash = window.location.hash.replace('#', '').replace(/^\/+|\/+$/g, '').toLowerCase();
+  if (hash === 'contact' || hash === 'games' || hash === 'projects' || hash === 'home') {
+    return hash as PageId;
+  }
+  const path = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+  if (path === 'contact' || path === 'games' || path === 'projects') {
+    return path as PageId;
+  }
+  return 'home';
+}
 
+export default function App() {
+  const [activePage, setActivePage] = useState<PageId>(() => getPageFromLocation());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [projectSearch, setProjectSearch] = useState('');
   const [projectFilter, setProjectFilter] = useState<'all' | 'tools' | 'webapps' | 'educatie'>('all');
   const [gameFilter, setGameFilter] = useState<'Alle' | 'Actie' | 'Puzzel' | 'Arcade'>('Alle');
 
   useEffect(() => {
-    const onHashChange = () => {
-      const hash = window.location.hash.replace('#', '').toLowerCase();
-      if (hash === 'contact' || hash === 'games' || hash === 'projects' || hash === 'home') {
-        setActivePage(hash as PageId);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+    const syncFromUrl = () => {
+      setActivePage(getPageFromLocation());
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
-    window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
+    window.addEventListener('popstate', syncFromUrl);
+    window.addEventListener('hashchange', syncFromUrl);
+    return () => {
+      window.removeEventListener('popstate', syncFromUrl);
+      window.removeEventListener('hashchange', syncFromUrl);
+    };
   }, []);
 
   const navigateTo = (page: PageId) => {
     setActivePage(page);
     setMobileMenuOpen(false);
-    window.history.pushState(null, '', `#${page}`);
+    const targetPath = page === 'home' ? '/' : `/${page}`;
+    try {
+      window.history.pushState(null, '', targetPath);
+    } catch {
+      window.location.hash = page;
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -80,12 +92,17 @@ export default function App() {
     return BANANA_GAMES_HIGHLIGHTS.filter((g) => g.genre === gameFilter);
   }, [gameFilter]);
 
-  const navItems: { id: PageId; label: string; icon: React.ReactNode }[] = [
-    { id: 'home', label: 'Home', icon: <Home className="w-3.5 h-3.5 text-[#ffa600]" /> },
-    { id: 'contact', label: 'Contact', icon: <Mail className="w-3.5 h-3.5 text-[#ffa600]" /> },
-    { id: 'games', label: 'Games', icon: <Gamepad2 className="w-3.5 h-3.5 text-[#ffa600]" /> },
-    { id: 'projects', label: 'Projects', icon: <FolderGit2 className="w-3.5 h-3.5 text-[#ffa600]" /> },
+  const navItems: { id: PageId; label: string; href: string; icon: React.ReactNode }[] = [
+    { id: 'home', label: 'Home', href: '/', icon: <Home className="w-3.5 h-3.5 text-[#ffa600]" /> },
+    { id: 'contact', label: 'Contact', href: '/contact', icon: <Mail className="w-3.5 h-3.5 text-[#ffa600]" /> },
+    { id: 'games', label: 'Games', href: '/games', icon: <Gamepad2 className="w-3.5 h-3.5 text-[#ffa600]" /> },
+    { id: 'projects', label: 'Projects', href: '/projects', icon: <FolderGit2 className="w-3.5 h-3.5 text-[#ffa600]" /> },
   ];
+
+  const heroBgUrl = assetUrl('images/hero-bg.jpeg');
+  const contactBgUrl = assetUrl('images/contact-bg.jpg');
+  const projectsBgUrl = assetUrl('images/projects.png');
+  const logoUrl = assetUrl('images/logo.png');
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#e8e6e1] flex flex-col studio-grid-bg">
@@ -102,7 +119,7 @@ export default function App() {
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-15"
-          style={{ backgroundImage: "url('/images/hero-bg.jpeg')" }}
+          style={{ backgroundImage: `url('${heroBgUrl}')` }}
         />
         <div
           aria-hidden="true"
@@ -112,7 +129,7 @@ export default function App() {
         <div className="relative z-10 mx-auto flex h-14 max-w-[1280px] items-center justify-between gap-8 border-x border-[#1f1f1f] px-6 md:px-10">
           {/* Brand Zone with original logo (r.png) */}
           <a
-            href="#home"
+            href="/"
             onClick={(e) => {
               e.preventDefault();
               navigateTo('home');
@@ -120,7 +137,7 @@ export default function App() {
             className="flex items-center gap-3 font-display text-base font-bold tracking-tight text-white hover:text-[#ffa600] transition-colors whitespace-nowrap shrink-0"
           >
             <img
-              src="/images/logo.png"
+              src={logoUrl}
               alt="Robbe Sonck logo"
               className="h-8 w-auto object-contain"
             />
@@ -134,7 +151,7 @@ export default function App() {
               return (
                 <a
                   key={item.id}
-                  href={`#${item.id}`}
+                  href={item.href}
                   onClick={(e) => {
                     e.preventDefault();
                     navigateTo(item.id);
@@ -175,7 +192,7 @@ export default function App() {
                 return (
                   <a
                     key={item.id}
-                    href={`#${item.id}`}
+                    href={item.href}
                     onClick={(e) => {
                       e.preventDefault();
                       navigateTo(item.id);
@@ -210,7 +227,7 @@ export default function App() {
                 <div
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-25"
-                  style={{ backgroundImage: "url('/images/hero-bg.jpeg')" }}
+                  style={{ backgroundImage: `url('${heroBgUrl}')` }}
                 />
                 {/* Measured dark gradient & subtle orange glow over the background image */}
                 <div
@@ -516,7 +533,7 @@ export default function App() {
                 <div
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-25"
-                  style={{ backgroundImage: "url('/images/contact-bg.jpg')" }}
+                  style={{ backgroundImage: `url('${contactBgUrl}')` }}
                 />
                 <div
                   aria-hidden="true"
@@ -740,7 +757,7 @@ export default function App() {
                 <div
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-25"
-                  style={{ backgroundImage: "url('/images/projects.png')" }}
+                  style={{ backgroundImage: `url('${projectsBgUrl}')` }}
                 />
                 <div
                   aria-hidden="true"
@@ -891,7 +908,7 @@ export default function App() {
             {/* Brand column with logo */}
             <div className="bg-[#0a0a0a] p-6 md:p-10">
               <a
-                href="#home"
+                href="/"
                 onClick={(e) => {
                   e.preventDefault();
                   navigateTo('home');
@@ -899,7 +916,7 @@ export default function App() {
                 className="inline-flex items-center gap-3 font-display text-lg font-bold tracking-tight text-white hover:text-[#ffa600] transition-colors"
               >
                 <img
-                  src="/images/logo.png"
+                  src={logoUrl}
                   alt="Robbe Sonck logo"
                   className="h-8 w-auto object-contain"
                 />
@@ -917,7 +934,7 @@ export default function App() {
                 {navItems.map((item) => (
                   <li key={`footer-${item.id}`}>
                     <a
-                      href={`#${item.id}`}
+                      href={item.href}
                       onClick={(e) => {
                         e.preventDefault();
                         navigateTo(item.id);

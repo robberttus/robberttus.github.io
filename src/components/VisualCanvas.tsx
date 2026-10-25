@@ -1,11 +1,12 @@
 import React from 'react';
 import { Gamepad2, Code2, ArrowUpRight } from 'lucide-react';
+import { assetUrl } from '../data/siteData';
 
 export const GamesVisualCard: React.FC = () => {
   return (
     <div className="relative aspect-square sm:aspect-video w-full overflow-hidden bg-[#070707] select-none group">
       <img
-        src="/images/games.jpeg"
+        src={assetUrl('images/games.jpeg')}
         alt="Games op robbesonck.be"
         referrerPolicy="no-referrer"
         className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.03]"
@@ -25,7 +26,7 @@ export const ProjectsVisualCard: React.FC = () => {
   return (
     <div className="relative aspect-square sm:aspect-video w-full overflow-hidden bg-[#070707] select-none group">
       <img
-        src="/images/projects.png"
+        src={assetUrl('images/projects.png')}
         alt="Projects op robbesonck.be"
         referrerPolicy="no-referrer"
         className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.03]"

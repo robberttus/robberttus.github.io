@@ -9,9 +9,9 @@
     <meta property="og:description" content="Welkom op de website van Robbe Sonck. Ontdek mijn projecten, speel online spellen op Banana Games of neem contact op." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" href="/images/favicon-150.png" sizes="32x32" />
-    <link rel="icon" href="/images/favicon-300.png" sizes="192x192" />
-    <link rel="apple-touch-icon" href="/images/favicon-300.png" />
+    <link id="fav-32" rel="icon" href="/images/favicon-150.png" sizes="32x32" />
+    <link id="fav-192" rel="icon" href="/images/favicon-300.png" sizes="192x192" />
+    <link id="fav-apple" rel="apple-touch-icon" href="/images/favicon-300.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&display=swap" rel="stylesheet" />
@@ -36,14 +36,22 @@
         function loadGitHubPagesBundle() {
           if (window.__ghBundleLoaded) return;
           window.__ghBundleLoaded = true;
+
+          var fav32 = document.getElementById('fav-32');
+          var fav192 = document.getElementById('fav-192');
+          var favApple = document.getElementById('fav-apple');
+          if (fav32) fav32.href = '/public/images/favicon-150.png';
+          if (fav192) fav192.href = '/public/images/favicon-300.png';
+          if (favApple) favApple.href = '/public/images/favicon-300.png';
+
           var css = document.createElement('link');
           css.rel = 'stylesheet';
-          css.href = '/gh-pages/app.css';
+          css.href = '/public/gh-pages/app.css';
           document.head.appendChild(css);
 
           var script = document.createElement('script');
           script.type = 'module';
-          script.src = '/gh-pages/app.js';
+          script.src = '/public/gh-pages/app.js';
           document.body.appendChild(script);
         }
         window.__loadGitHubPagesBundle = loadGitHubPagesBundle;
