@@ -1,0 +1,6 @@
+{
+  "name": "De website van Robbe Sonck",
+  "description": "Welkom op de website van Robbe Sonck. Ontdek mijn projecten, speel online spellen op Banana Games of neem contact op.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
